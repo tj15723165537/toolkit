@@ -1,98 +1,163 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Link} from 'expo-router';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {TOOLS} from '@/utils/constants';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Toolkit 📦</Text>
+          <Text style={styles.subtitle}>你的生活工具集</Text>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Tool Grid */}
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.grid}>
+            {TOOLS.map((tool) => (
+                <ToolCard key={tool.id} tool={tool}/>
+            ))}
+          </View>
+          <View style={styles.bottomPadding}/>
+        </ScrollView>
+      </SafeAreaView>
+  );
+}
+
+function ToolCard({tool}: { tool: typeof TOOLS[0] }) {
+  const isAvailable = tool.available;
+
+  const cardContent = (
+      <TouchableOpacity style={styles.card}>
+        <View>
+          <View style={styles.iconContainer}>
+            <Text style={styles.icon}>{tool.icon}</Text>
+          </View>
+          <Text style={styles.cardTitle}>{tool.name}</Text>
+          <Text style={styles.cardDescription}>
+            {isAvailable ? tool.description : '即将推出'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+  );
+
+  if (!isAvailable) {
+    return cardContent;
+  }
+
+  return (
+      <Link href={tool.route as any} asChild>
+        {cardContent}
+      </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#E0E5EC',
   },
-  stepContainer: {
-    gap: 8,
+  header: {
+    paddingTop: 20,
+    paddingBottom: 28,
+    paddingHorizontal: 24,
+    backgroundColor: '#E0E5EC',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     marginBottom: 8,
+    shadowColor: '#A3B1C6',
+    shadowOffset: {width: 8, height: 8},
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: '#4A5568',
+    textShadowColor: '#FFFFFF',
+    textShadowOffset: {width: 2, height: 2},
+    textShadowRadius: 4,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#718096',
+    marginTop: 6,
+    fontWeight: '500',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  card: {
+    width: '48%',
+    aspectRatio: 1,
+    backgroundColor: '#E0E5EC',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Neumorphism shadows
+    shadowColor: '#A3B1C6',
+    shadowOffset: {width: 6, height: 6},
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
+    // Inner highlight
+    borderWidth: 0,
+  },
+  cardPressed: {
+    shadowColor: '#A3B1C6',
+    shadowOffset: {width: 3, height: 3},
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  iconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E0E5EC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    // Raised effect for icon
+    shadowColor: '#A3B1C6',
+    shadowOffset: {width: 4, height: 4},
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  icon: {
+    fontSize: 30,
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#4A5568',
+    textAlign: 'center',
+    marginBottom: 6,
+    textShadowColor: '#FFFFFF',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
+  },
+  cardDescription: {
+    fontSize: 11,
+    color: '#718096',
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+  bottomPadding: {
+    height: 30,
   },
 });
