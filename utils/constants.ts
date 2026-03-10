@@ -27,8 +27,7 @@ export const CATEGORIES: Omit<Category, 'id' | 'is_default'>[] = [
   { name: '工资', type: 'income', icon: '💰', color: '#4CAF50' },
   { name: '奖金', type: 'income', icon: '🎁', color: '#00BCD4' },
   { name: '投资', type: 'income', icon: '📈', color: '#FF9800' },
-  { name: '兼职', type: 'income', icon: '💼', color: '#9C27B0' },
-  { name: '其他', type: 'income', icon: '⋯', color: '#9E9E9E' },
+  { name: '兼职', type: 'income', icon: '💼', color: '#9C27B0' }
 ];
 
 export const TOOLS: {

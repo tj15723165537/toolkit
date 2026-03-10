@@ -6,14 +6,14 @@ import {TOOLS} from '@/utils/constants';
 export default function HomeScreen() {
   return (
       <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Toolkit 📦</Text>
-          <Text style={styles.subtitle}>你的生活工具集</Text>
-        </View>
-
         {/* Tool Grid */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Toolkit 📦</Text>
+            <Text style={styles.subtitle}>你的生活工具集</Text>
+          </View>
+
           <View style={styles.grid}>
             {TOOLS.map((tool) => (
                 <ToolCard key={tool.id} tool={tool}/>
@@ -105,13 +105,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    // Neumorphism shadows
     shadowColor: '#A3B1C6',
     shadowOffset: {width: 6, height: 6},
     shadowOpacity: 0.5,
     shadowRadius: 10,
     elevation: 10,
-    // Inner highlight
     borderWidth: 0,
   },
   cardPressed: {
@@ -129,7 +127,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
-    // Raised effect for icon
     shadowColor: '#A3B1C6',
     shadowOffset: {width: 4, height: 4},
     shadowOpacity: 0.4,
