@@ -1,17 +1,5 @@
 import { Category } from '@/types';
 
-type AppRoute = 
-  | '/accounting'
-  | '/pomodoro' 
-  | '/habit'
-  | '/diary'
-  | '/converter'
-  | '/color'
-  | '/modal'
-  | '/(tabs)'
-  | '/(tabs)/index'
-  | '/(tabs)/explore';
-
 export const CATEGORIES: Omit<Category, 'id' | 'is_default'>[] = [
   // Expense categories
   { name: '餐饮', type: 'expense', icon: '🍜', color: '#FF9800' },
@@ -35,56 +23,21 @@ export const TOOLS: {
   name: string;
   icon: string;
   description: string;
-  available: boolean;
-  route: AppRoute;
+  route: string;
 }[] = [
   {
     id: 'accounting',
     name: '记账本',
     icon: '📒',
     description: '记录日常收支',
-    available: true,
     route: '/accounting',
   },
   {
-    id: 'pomodoro',
-    name: '番茄钟',
-    icon: '⏰',
-    description: '专注时间管理',
-    available: false,
-    route: '/pomodoro',
-  },
-  {
-    id: 'habit',
-    name: '习惯打卡',
-    icon: '✓',
-    description: '养成好习惯',
-    available: false,
-    route: '/habit',
-  },
-  {
-    id: 'diary',
-    name: '心情日记',
-    icon: '😊',
-    description: '记录每日心情',
-    available: false,
-    route: '/diary',
-  },
-  {
-    id: 'converter',
-    name: '单位转换',
-    icon: '🔧',
-    description: '快速换算单位',
-    available: false,
-    route: '/converter',
-  },
-  {
-    id: 'color',
-    name: '颜色选择',
-    icon: '📊',
-    description: '取色与配色',
-    available: false,
-    route: '/color',
+    id: 'password',
+    name: '密码管理',
+    icon: '🔐',
+    description: '安全存储账号密码',
+    route: '/password',
   },
 ];
 

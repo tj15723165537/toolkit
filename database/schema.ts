@@ -43,6 +43,19 @@ export async function initializeDatabase(db: SQLiteDatabase) {
     );
   `);
 
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS passwords (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      platform TEXT NOT NULL,
+      username TEXT NOT NULL,
+      password TEXT NOT NULL,
+      url TEXT,
+      notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   // Insert default categories
   await seedCategories(db);
 }

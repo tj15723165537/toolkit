@@ -26,8 +26,6 @@ export default function HomeScreen() {
 }
 
 function ToolCard({tool}: { tool: typeof TOOLS[0] }) {
-  const isAvailable = tool.available;
-
   const cardContent = (
       <TouchableOpacity style={styles.card}>
         <View>
@@ -36,15 +34,11 @@ function ToolCard({tool}: { tool: typeof TOOLS[0] }) {
           </View>
           <Text style={styles.cardTitle}>{tool.name}</Text>
           <Text style={styles.cardDescription}>
-            {isAvailable ? tool.description : '即将推出'}
+            {tool.description}
           </Text>
         </View>
       </TouchableOpacity>
   );
-
-  if (!isAvailable) {
-    return cardContent;
-  }
 
   return (
       <Link href={tool.route as any} asChild>

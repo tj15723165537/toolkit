@@ -1,6 +1,6 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback } from 'react';
-import { Transaction, TransactionType, Category, MonthlySummary } from '@/types';
+import { Transaction, TransactionType, Category, MonthlySummary, Password } from '@/types';
 import { formatMonthKey, groupByDate } from '@/utils/format';
 
 export function useDatabase() {
@@ -141,18 +141,76 @@ export function useDatabase() {
       'SELECT COUNT(*) as count FROM transactions WHERE category = (SELECT name FROM categories WHERE id = ?)',
       [id]
     );
-    
+
     if (used && used.count > 0) {
       throw new Error('该分类已被使用，无法删除');
     }
-    
+
     // Check if category is default
     const category = await db.getFirstAsync<Category>('SELECT * FROM categories WHERE id = ?', [id]);
     if (category && category.is_default) {
       throw new Error('默认分类无法删除');
     }
-    
+
     return await db.runAsync('DELETE FROM categories WHERE id = ?', [id]);
+  }, [db]);
+
+  // Password operations
+  const addPassword = useCallback(async (
+    platform: string,
+    username: string,
+    encryptedPassword: string,
+    url?: string,
+    notes?: string
+  ) => {
+    return await db.runAsync(
+      `INSERT INTO passwords (platform, username, password, url, notes) VALUES (?, ?, ?, ?, ?)`,
+      [platform, username, encryptedPassword, url || null, notes || null]
+    );
+  }, [db]);
+
+  const getPasswords = useCallback(async () => {
+    const passwords = await db.getAllAsync<Password>(
+      `SELECT * FROM passwords ORDER BY platform ASC, username ASC`
+    );
+    return passwords;
+  }, [db]);
+
+  const getPassword = useCallback(async (id: number) => {
+    const password = await db.getFirstAsync<Password>(
+      `SELECT * FROM passwords WHERE id = ?`,
+      [id]
+    );
+    return password;
+  }, [db]);
+
+  const searchPasswords = useCallback(async (keyword: string) => {
+    const passwords = await db.getAllAsync<Password>(
+      `SELECT * FROM passwords
+       WHERE platform LIKE ? OR username LIKE ? OR notes LIKE ?
+       ORDER BY platform ASC, username ASC`,
+      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`]
+    );
+    return passwords;
+  }, [db]);
+
+  const deletePassword = useCallback(async (id: number) => {
+    return await db.runAsync('DELETE FROM passwords WHERE id = ?', [id]);
+  }, [db]);
+
+  const updatePassword = useCallback(async (
+    id: number,
+    updates: Partial<Omit<Password, 'id' | 'created_at' | 'updated_at'>>
+  ) => {
+    const fields = Object.keys(updates);
+    const values = Object.values(updates);
+
+    if (fields.length === 0) return;
+
+    const setClause = fields.map(f => `${f} = ?`).join(', ');
+    const query = `UPDATE passwords SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+
+    return await db.runAsync(query, [...values, id]);
   }, [db]);
 
   return {
@@ -166,5 +224,11 @@ export function useDatabase() {
     getCategories,
     addCategory,
     deleteCategory,
+    addPassword,
+    getPasswords,
+    getPassword,
+    searchPasswords,
+    deletePassword,
+    updatePassword,
   };
 }
