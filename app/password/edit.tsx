@@ -120,7 +120,6 @@ export default function EditPasswordScreen() {
         platform: platform.trim(),
         username: username.trim(),
         password: encryptedPassword,
-        url: undefined,
         notes: notes.trim() || undefined,
       });
       Alert.alert('保存成功', '密码已更新', [

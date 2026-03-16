@@ -49,7 +49,6 @@ export async function initializeDatabase(db: SQLiteDatabase) {
       platform TEXT NOT NULL,
       username TEXT NOT NULL,
       password TEXT NOT NULL,
-      url TEXT,
       notes TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -77,6 +76,35 @@ async function seedCategories(db: SQLiteDatabase) {
 }
 
 export async function migrateDatabase(db: SQLiteDatabase) {
-  // Future migrations will be added here
-  // Example: await db.execAsync('ALTER TABLE transactions ADD COLUMN new_column TEXT');
+  // 检查是否有 url 列，如果有则通过重建表的方式删除它
+  const result = await db.getFirstAsync<{ sql: string }>(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='passwords'"
+  );
+
+  if (result && result.sql.includes('url')) {
+    // 创建新表（不含 url 列）
+    await db.execAsync(`
+      CREATE TABLE passwords_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        platform TEXT NOT NULL,
+        username TEXT NOT NULL,
+        password TEXT NOT NULL,
+        notes TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 复制数据
+    await db.execAsync(`
+      INSERT INTO passwords_new (id, platform, username, password, notes, created_at, updated_at)
+      SELECT id, platform, username, password, notes, created_at, updated_at FROM passwords;
+    `);
+
+    // 删除旧表并重命名新表
+    await db.execAsync(`
+      DROP TABLE passwords;
+      ALTER TABLE passwords_new RENAME TO passwords;
+    `);
+  }
 }

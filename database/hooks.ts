@@ -160,12 +160,11 @@ export function useDatabase() {
     platform: string,
     username: string,
     encryptedPassword: string,
-    url?: string,
     notes?: string
   ) => {
     return await db.runAsync(
-      `INSERT INTO passwords (platform, username, password, url, notes) VALUES (?, ?, ?, ?, ?)`,
-      [platform, username, encryptedPassword, url || null, notes || null]
+      `INSERT INTO passwords (platform, username, password, notes) VALUES (?, ?, ?, ?)`,
+      [platform, username, encryptedPassword, notes || null]
     );
   }, [db]);
 

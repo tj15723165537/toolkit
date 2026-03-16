@@ -40,7 +40,6 @@ export interface Password {
   platform: string;
   username: string;
   password: string; // 加密后的密码
-  url?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -51,7 +50,6 @@ export interface DecryptedPassword {
   platform: string;
   username: string;
   password: string; // 解密后的密码
-  url?: string;
   notes?: string;
   created_at: string;
   updated_at: string;

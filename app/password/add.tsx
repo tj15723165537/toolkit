@@ -73,7 +73,7 @@ export default function AddPasswordScreen() {
 
     try {
       const encryptedPassword = encrypt(password, masterKey);
-      await addPassword(platform.trim(), username.trim(), encryptedPassword, undefined, notes.trim() || undefined);
+      await addPassword(platform.trim(), username.trim(), encryptedPassword, notes.trim() || undefined);
       Alert.alert('保存成功', '密码已保存', [
         {text: '确定', onPress: () => router.back()},
       ]);
