@@ -1,5 +1,17 @@
 import CryptoJS from 'crypto-js';
 
+// 配置 crypto-js 使用 JavaScript 随机数生成器，而不是 Web Crypto API
+// React Native 不支持 Web Crypto API
+if (typeof crypto === 'undefined') {
+  CryptoJS.lib.WordArray.random = function (nWords: number) {
+    const words: number[] = [];
+    for (let i = 0; i < nWords; i++) {
+      words[i] = Math.random() * 0x100000000 | 0;
+    }
+    return CryptoJS.lib.WordArray.create(words, nWords);
+  };
+}
+
 /**
  * 使用主密码生成加密密钥（SHA256 哈希）
  */

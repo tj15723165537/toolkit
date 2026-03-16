@@ -28,6 +28,11 @@ export function formatDateChinese(date: string | Date): string {
   return format(d, 'M月d日', { locale: zhCN });
 }
 
+export function formatDateFull(date: string | Date): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return format(d, 'yyyy年M月d日', { locale: zhCN });
+}
+
 export function formatMonth(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return format(d, 'yyyy年M月', { locale: zhCN });

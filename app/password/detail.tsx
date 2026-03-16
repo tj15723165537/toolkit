@@ -1,18 +1,11 @@
-import {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import {useRouter, useLocalSearchParams} from 'expo-router';
+import {useEffect, useState} from 'react';
+import {ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
+import {useLocalSearchParams, useRouter} from 'expo-router';
 import {useDatabase} from '@/database/hooks';
 import {useAuth} from './_layout';
-import {Password, DecryptedPassword} from '@/types';
-import {ArrowLeft, Copy, Eye, EyeOff, Edit3, ExternalLink, Calendar} from 'lucide-react-native';
-import {formatDateChinese} from '@/utils/format';
+import {DecryptedPassword} from '@/types';
+import {ArrowLeft, Calendar, Copy, Edit3, Eye, EyeOff} from 'lucide-react-native';
+import {formatDateFull} from '@/utils/format';
 import * as Clipboard from 'expo-clipboard';
 
 export default function PasswordDetailScreen() {
@@ -100,7 +93,7 @@ export default function PasswordDetailScreen() {
       <>
         {/* Header - 拟态风格 */}
         <View
-            className="bg-[#f0f0f3] px-5 py-4 pb-5"
+            className="bg-[#f0f0f3] px-5 py-2"
             style={{
               borderBottomWidth: 1,
               borderBottomColor: '#d4d7d9',
@@ -138,7 +131,7 @@ export default function PasswordDetailScreen() {
 
           {/* Username card - 拟态风格 */}
           <View
-              className="bg-[#f0f0f3] rounded-2xl p-5"
+              className="bg-[#f0f0f3] rounded-2xl p-5 mt-4"
               style={{
                 shadowColor: '#000',
                 shadowOffset: {width: 4, height: 4},
@@ -175,7 +168,7 @@ export default function PasswordDetailScreen() {
 
           {/* Password card - 拟态风格，高亮 */}
           <View
-              className="bg-[#eef2ff] rounded-2xl p-5 border-2 border-[#6366f1]/20"
+              className="bg-[#eef2ff] rounded-2xl p-5 mt-4 border-2 border-[#6366f1]/20"
               style={{
                 shadowColor: '#6366f1',
                 shadowOffset: {width: 4, height: 4},
@@ -210,33 +203,12 @@ export default function PasswordDetailScreen() {
             </View>
           </View>
 
-          {/* URL card - 拟态风格 */}
-          {password.url && (
-              <TouchableOpacity
-                  onPress={handleOpenUrl}
-                  className="bg-[#f0f0f3] rounded-2xl p-5"
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {width: 4, height: 4},
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 3,
-                  }}
-              >
-                <Text className="text-xs font-medium text-[#6b7280] mb-3">网址</Text>
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-sm text-[#1a1a2e] break-all">{password.url}</Text>
-                  </View>
-                  <ExternalLink size={18} className="text-[#6366f1] ml-3"/>
-                </View>
-              </TouchableOpacity>
-          )}
+
 
           {/* Notes card - 拟态风格 */}
           {password.notes && (
               <View
-                  className="bg-[#f0f0f3] rounded-2xl p-5"
+                  className="bg-[#f0f0f3] rounded-2xl p-5 mt-4"
                   style={{
                     shadowColor: '#000',
                     shadowOffset: {width: 4, height: 4},
@@ -252,7 +224,7 @@ export default function PasswordDetailScreen() {
 
           {/* Metadata - 拟态风格 */}
           <View
-              className="bg-[#f0f0f3] rounded-2xl p-5"
+              className="bg-[#f0f0f3] rounded-2xl p-5 mt-4"
               style={{
                 shadowColor: '#000',
                 shadowOffset: {width: 4, height: 4},
@@ -261,18 +233,18 @@ export default function PasswordDetailScreen() {
                 elevation: 3,
               }}
           >
-            <Text className="text-xs font-medium text-[#6b7280] mb-3">创建时间</Text>
+            <Text className="text-xs font-medium text-[#6b7280] mb-3">修改记录</Text>
             <View className="flex-row items-center">
-              <Calendar size={18} className="text-[#6b7280] mr-3"/>
-              <Text className="text-sm text-[#1a1a2e]">
-                {formatDateChinese(new Date(password.created_at))}
+              <Calendar size={18} className="text-[#6b7280]"/>
+              <Text className="text-sm text-[#1a1a2e] ml-2">
+                创建于 {formatDateFull(new Date(password.created_at))}
               </Text>
             </View>
             {password.updated_at !== password.created_at && (
                 <View className="flex-row items-center mt-3">
-                  <Calendar size={18} className="text-[#6b7280] mr-3"/>
-                  <Text className="text-sm text-[#1a1a2e]">
-                    更新于 {formatDateChinese(new Date(password.updated_at))}
+                  <Calendar size={18} className="text-[#6b7280]"/>
+                  <Text className="text-sm text-[#1a1a2e] ml-2">
+                    更新于 {formatDateFull(new Date(password.updated_at))}
                   </Text>
                 </View>
             )}

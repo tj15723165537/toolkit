@@ -257,21 +257,21 @@ export default function PasswordListScreen() {
         {filteredPasswords.length > 0 && (
             <TouchableOpacity
                 onPress={() => router.push('/password/add')}
-                className="absolute bottom-6 right-6 w-16 h-16 rounded-full items-center justify-center"
+                className="absolute bottom-6 right-6 px-5 h-14 rounded-2xl flex-row items-center justify-center"
                 style={{
-                  backgroundColor: '#6366f1',
+                  backgroundColor: '#e8e8ec',
                   shadowColor: '#000',
-                  shadowOffset: {width: 0, height: 6},
-                  shadowOpacity: 0.3,
-                  shadowRadius: 12,
-                  elevation: 6,
+                  shadowOffset: {width: 3, height: 3},
+                  shadowOpacity: 0.15,
+                  shadowRadius: 6,
+                  elevation: 3,
                 }}
             >
-              <Plus size={32} className="text-white"/>
+              <Plus size={24} className="text-[#6366f1]"/>
             </TouchableOpacity>
         )}
 
-        {/* Delete modal - 拟态风格 */}
+        {/* Action modal - 拟态风格 */}
         <Modal
             visible={showDeleteModal}
             transparent
@@ -281,45 +281,83 @@ export default function PasswordListScreen() {
               setSelectedPassword(null);
             }}
         >
-          <View className="flex-1 bg-black/30 items-end justify-end">
+          <View className="flex-1 bg-black/40 items-center justify-end">
             <View
-                className="bg-[#f0f0f3] w-72 rounded-t-3xl p-5"
+                className="bg-[#f0f0f3] w-full mx-6 mb-6 rounded-3xl overflow-hidden"
                 style={{
                   shadowColor: '#000',
-                  shadowOffset: {width: 0, height: -8},
+                  shadowOffset: {width: 0, height: -4},
                   shadowOpacity: 0.15,
-                  shadowRadius: 16,
-                  elevation: 8,
+                  shadowRadius: 20,
+                  elevation: 10,
                 }}
             >
               {selectedPassword && (
-                  <View>
-                    <Text className="text-[#1a1a2e] font-semibold text-lg mb-2">
-                      {selectedPassword.platform}
-                    </Text>
-                    <Text className="text-[#6b7280] text-sm mb-6">
-                      {selectedPassword.username}
-                    </Text>
+                  <View className="p-4">
+                    {/* Header */}
+                    <View className="px-2 pb-4 border-b border-[#d4d7d9] mb-3">
+                      <Text className="text-[#1a1a2e] font-bold text-lg mb-1 text-center">
+                        {selectedPassword.platform}
+                      </Text>
+                      <Text className="text-[#6b7280] text-sm text-center">
+                        {selectedPassword.username}
+                      </Text>
+                    </View>
 
+                    {/* Edit option */}
                     <TouchableOpacity
                         onPress={() => {
                           setShowDeleteModal(false);
                           router.push(`/password/edit?id=${selectedPassword.id}`);
                         }}
-                        className="flex-row items-center py-4 border-b border-[#d4d7d9]"
+                        className="flex-row items-center px-4 py-4"
                     >
-                      <Text className="text-[#1a1a2e] flex-1 text-base">编辑</Text>
+                      <View
+                          className="w-10 h-10 rounded-xl items-center justify-center mr-4"
+                          style={{
+                            backgroundColor: '#eef2ff',
+                          }}
+                      >
+                        <Globe size={20} className="text-[#6366f1]"/>
+                      </View>
+                      <Text className="text-[#1a1a2e] text-base font-medium flex-1">编辑</Text>
                     </TouchableOpacity>
 
+                    {/* Delete option */}
                     <TouchableOpacity
                         onPress={() => {
                           setShowDeleteModal(false);
                           handleDelete();
                         }}
-                        className="flex-row items-center py-4"
+                        className="flex-row items-center px-4 py-4"
                     >
-                      <Trash2 size={20} className="text-red-500 mr-3"/>
-                      <Text className="text-red-500 text-base">删除</Text>
+                      <View
+                          className="w-10 h-10 rounded-xl items-center justify-center mr-4"
+                          style={{
+                            backgroundColor: '#fef2f2',
+                          }}
+                      >
+                        <Trash2 size={20} className="text-red-500"/>
+                      </View>
+                      <Text className="text-red-500 text-base font-medium flex-1">删除</Text>
+                    </TouchableOpacity>
+
+                    {/* Cancel */}
+                    <TouchableOpacity
+                        onPress={() => {
+                          setShowDeleteModal(false);
+                          setSelectedPassword(null);
+                        }}
+                        className="mt-3 px-4 py-4 bg-[#e8e8ec] rounded-2xl items-center"
+                        style={{
+                          shadowColor: '#000',
+                          shadowOffset: {width: 2, height: 2},
+                          shadowOpacity: 0.1,
+                          shadowRadius: 4,
+                          elevation: 2,
+                        }}
+                    >
+                      <Text className="text-[#1a1a2e] text-base font-medium">取消</Text>
                     </TouchableOpacity>
                   </View>
               )}

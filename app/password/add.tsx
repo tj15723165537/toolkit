@@ -78,6 +78,7 @@ export default function AddPasswordScreen() {
         {text: '确定', onPress: () => router.back()},
       ]);
     } catch (error) {
+      console.log(error)
       Alert.alert('保存失败', '无法保存密码，请重试');
     }
 

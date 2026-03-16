@@ -15,7 +15,7 @@ import { useDatabase } from '@/database/hooks';
 import { useAuth } from './_layout';
 import { Password, DecryptedPassword } from '@/types';
 import { encrypt, generatePassword, assessPasswordStrength } from '@/utils/crypto';
-import { ArrowLeft, Eye, EyeOff, RefreshCw, AlertTriangle } from 'lucide-react-native';
+import { ArrowLeft, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
 
 interface PasswordOptions {
   length: number;
@@ -164,7 +164,7 @@ export default function EditPasswordScreen() {
     <View className="flex-1" style={{ backgroundColor: '#e5e7eb' }}>
 
       {/* Header */}
-      <View className="bg-[#f0f0f3] px-5 py-4 pb-5" style={{ borderBottomWidth: 1, borderBottomColor: '#d4d7d9' }}>
+      <View className="bg-[#f0f0f3] px-5 py-2" style={{ borderBottomWidth: 1, borderBottomColor: '#d4d7d9' }}>
         <View className="flex-row items-center justify-between">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <ArrowLeft size={26} className="text-[#1a1a2e]" />
@@ -175,9 +175,9 @@ export default function EditPasswordScreen() {
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-        <ScrollView className="flex-1 px-5 py-6" style={{ gap: 24 }} contentContainerStyle={{ paddingBottom: 16 }}>
+        <ScrollView className="flex-1 px-5" style={{ gap: 24 }} contentContainerStyle={{ paddingBottom: 16 }}>
           {/* Platform */}
-          <View>
+          <View className='mt-4'>
             <Text className="text-sm font-medium text-[#1a1a2e] mb-3">平台 *</Text>
             <TextInput
               value={platform}
@@ -190,7 +190,7 @@ export default function EditPasswordScreen() {
           </View>
 
           {/* Username */}
-          <View>
+          <View className='mt-4'>
             <Text className="text-sm font-medium text-[#1a1a2e] mb-3">用户名 *</Text>
             <TextInput
               value={username}
@@ -205,11 +205,8 @@ export default function EditPasswordScreen() {
           </View>
 
           {/* Password */}
-          <View>
-            <View className="flex-row items-center mb-3">
-              <Text className="text-sm font-medium text-[#1a1a2e]">密码 *</Text>
-              <AlertTriangle size={16} className="text-orange-500 ml-2" />
-            </View>
+          <View className='mt-4'>
+            <Text className="text-sm font-medium text-[#1a1a2e] mb-3">密码 *</Text>
             <View>
               <TextInput
                 value={passwordValue}
@@ -222,11 +219,11 @@ export default function EditPasswordScreen() {
                 className="bg-[#f0f0f3] rounded-2xl px-5 py-4 pr-28 text-[#1a1a2e]"
                 style={{ ...cardStyle, fontSize: 16 }}
               />
-              <View className="absolute right-3 top-5 flex-row" style={{ marginTop: Platform.OS === 'ios' ? 0 : -12 }}>
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="p-2">
+              <View className="h-full absolute right-3 flex-row items-center">
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={22} className="text-[#6b7280]" /> : <Eye size={22} className="text-[#6b7280]" />}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleGeneratePassword} className="p-2">
+                <TouchableOpacity onPress={handleGeneratePassword} className='ml-3'>
                   <RefreshCw size={22} className="text-[#6366f1]" />
                 </TouchableOpacity>
               </View>
