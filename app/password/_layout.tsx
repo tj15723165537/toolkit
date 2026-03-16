@@ -1,7 +1,6 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { View, Text, ActivityIndicator, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useSecureStore } from '@/hooks/useSecureStore';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { generateKey, decrypt } from '@/utils/crypto';
@@ -116,19 +115,14 @@ function PasswordAuthProvider({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }} edges={['top', 'left', 'right']}>
-        <StatusBar barStyle="dark-content" />
-        <View className="flex-1 items-center justify-center bg-background">
-          <ActivityIndicator size="large" className="text-primary" />
-        </View>
-      </SafeAreaView>
+      <View className="flex-1 items-center justify-center bg-background" style={{ backgroundColor: '#f5f5f5' }}>
+        <ActivityIndicator size="large" className="text-primary" />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" />
-      <AuthContext.Provider
+    <AuthContext.Provider
       value={{
         masterKey,
         setMasterKey,
@@ -138,7 +132,6 @@ function PasswordAuthProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </AuthContext.Provider>
-    </SafeAreaView>
   );
 }
 

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
@@ -87,7 +86,7 @@ export default function AddTransactionScreen() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#E8ECEF' }}>
+    <View style={{ flex: 1, backgroundColor: '#E8ECEF' }}>
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         <View style={{ 
           paddingHorizontal: 24, 
@@ -417,6 +416,6 @@ export default function AddTransactionScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

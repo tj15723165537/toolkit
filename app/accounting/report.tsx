@@ -1,6 +1,5 @@
 import {useState, useEffect, useCallback} from 'react';
 import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {format} from 'date-fns';
 import {zhCN} from 'date-fns/locale';
 import {useRouter} from 'expo-router';
@@ -57,7 +56,7 @@ export default function ReportScreen() {
   }, [loadData]);
 
   return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#f5f7fa'}}>
+      <View style={{flex: 1, backgroundColor: '#f5f7fa'}}>
         <View style={{
           backgroundColor: '#ffffff',
           paddingHorizontal: 16,
@@ -152,6 +151,6 @@ export default function ReportScreen() {
             </View>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
   );
 }

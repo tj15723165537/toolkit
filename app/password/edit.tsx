@@ -8,10 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  StatusBar,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useDatabase } from '@/database/hooks';
 import { useAuth } from './_layout';
@@ -156,16 +154,14 @@ export default function EditPasswordScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: '#e5e7eb' }}>
-        <StatusBar barStyle="dark-content" />
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: '#e5e7eb' }}>
         <ActivityIndicator size="large" color="#6366f1" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: '#e5e7eb' }}>
-      <StatusBar barStyle="dark-content" />
+    <View className="flex-1" style={{ backgroundColor: '#e5e7eb' }}>
 
       {/* Header */}
       <View className="bg-[#f0f0f3] px-5 py-4 pb-5" style={{ borderBottomWidth: 1, borderBottomColor: '#d4d7d9' }}>
@@ -179,7 +175,7 @@ export default function EditPasswordScreen() {
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-        <ScrollView className="flex-1 px-5 py-6" style={{ gap: 20 }}>
+        <ScrollView className="flex-1 px-5 py-6" style={{ gap: 24 }} contentContainerStyle={{ paddingBottom: 16 }}>
           {/* Platform */}
           <View>
             <Text className="text-sm font-medium text-[#1a1a2e] mb-3">平台 *</Text>
@@ -332,6 +328,6 @@ export default function EditPasswordScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }

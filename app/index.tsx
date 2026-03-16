@@ -1,11 +1,10 @@
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Link} from 'expo-router';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {TOOLS} from '@/utils/constants';
 
 export default function HomeScreen() {
   return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         {/* Tool Grid */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Header */}
@@ -21,14 +20,14 @@ export default function HomeScreen() {
           </View>
           <View style={styles.bottomPadding}/>
         </ScrollView>
-      </SafeAreaView>
+      </View>
   );
 }
 
 function ToolCard({tool}: { tool: typeof TOOLS[0] }) {
   const cardContent = (
       <TouchableOpacity style={styles.card}>
-        <View>
+        <View className='items-center'>
           <View style={styles.iconContainer}>
             <Text style={styles.icon}>{tool.icon}</Text>
           </View>
@@ -131,6 +130,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 30,
+    textAlignVertical: 'center',
   },
   cardTitle: {
     fontSize: 15,

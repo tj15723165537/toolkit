@@ -7,9 +7,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useSecureStore } from '@/hooks/useSecureStore';
 import { generateKey } from '@/utils/crypto';
@@ -71,12 +69,10 @@ export default function SetupScreen() {
   const strength = assessPasswordStrength(masterPassword);
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1"
+    >
         <View className="flex-1 px-6 pt-10">
         {/* Header */}
         <View className="items-center mb-12">
@@ -187,6 +183,5 @@ export default function SetupScreen() {
         </View>
       </View>
     </KeyboardAvoidingView>
-  </SafeAreaView>
   );
 }
