@@ -1,11 +1,9 @@
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { useSecureStore } from '@/hooks/useSecureStore';
-import { useBiometricAuth } from '@/hooks/useBiometricAuth';
-import { generateKey, decrypt } from '@/utils/crypto';
-import { useDatabase } from '@/database/hooks';
-import { Password, DecryptedPassword } from '@/types';
+import {Stack, useRouter, useSegments} from 'expo-router';
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import {ActivityIndicator, View} from 'react-native';
+import {useSecureStore} from '@/hooks/useSecureStore';
+import {decrypt} from '@/utils/crypto';
+import {DecryptedPassword, Password} from '@/types';
 
 interface AuthContextType {
   masterKey: string | null;
@@ -24,24 +22,12 @@ export function useAuth() {
   return context;
 }
 
-function PasswordAuthProvider({ children }: { children: ReactNode }) {
+function PasswordAuthProvider({children}: { children: ReactNode }) {
   const [masterKey, setMasterKey] = useState<string | null>(null);
-  const { hasMasterPassword, getSessionTimeout, setSessionTimeout } = useSecureStore();
-  const { isAvailable } = useBiometricAuth();
-  const { getPasswords } = useDatabase();
+  const {hasMasterPassword, getSessionTimeout, setSessionTimeout} = useSecureStore();
   const router = useRouter();
   const segments = useSegments();
   const [isLoading, setIsLoading] = useState(true);
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
-
-  useEffect(() => {
-    checkBiometric();
-  }, []);
-
-  const checkBiometric = async () => {
-    const available = await isAvailable();
-    setBiometricAvailable(available);
-  };
 
   // Check session status
   useEffect(() => {
@@ -115,42 +101,42 @@ function PasswordAuthProvider({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background" style={{ backgroundColor: '#f5f5f5' }}>
-        <ActivityIndicator size="large" className="text-primary" />
-      </View>
+        <View className="flex-1 items-center justify-center bg-background" style={{backgroundColor: '#f5f5f5'}}>
+          <ActivityIndicator size="large" className="text-primary"/>
+        </View>
     );
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        masterKey,
-        setMasterKey,
-        decryptPassword,
-        isUnlocked: !!masterKey,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider
+          value={{
+            masterKey,
+            setMasterKey,
+            decryptPassword,
+            isUnlocked: !!masterKey,
+          }}
+      >
+        {children}
+      </AuthContext.Provider>
   );
 }
 
 export default function PasswordLayout() {
   return (
-    <PasswordAuthProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="setup" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="unlock" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="index" />
-        <Stack.Screen name="add" />
-        <Stack.Screen name="detail" />
-        <Stack.Screen name="edit" />
-      </Stack>
-    </PasswordAuthProvider>
+      <PasswordAuthProvider>
+        <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+        >
+          <Stack.Screen name="setup" options={{gestureEnabled: false}}/>
+          <Stack.Screen name="unlock" options={{gestureEnabled: false}}/>
+          <Stack.Screen name="index"/>
+          <Stack.Screen name="add"/>
+          <Stack.Screen name="detail"/>
+          <Stack.Screen name="edit"/>
+        </Stack>
+      </PasswordAuthProvider>
   );
 }

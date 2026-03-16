@@ -52,20 +52,6 @@ export default function PasswordDetailScreen() {
     Alert.alert('已复制', `${label} 已复制到剪贴板`);
   };
 
-  const handleOpenUrl = () => {
-    if (!password?.url) return;
-    Alert.alert('打开网址', `是否跳转到 ${password.url}?`, [
-      {text: '取消', style: 'cancel'},
-      {
-        text: '打开',
-        onPress: () => {
-          // In a real app, use Linking.openURL(url)
-          Alert.alert('提示', '跳转功能需要实现 Linking.openURL');
-        },
-      },
-    ]);
-  };
-
   if (isLoading) {
     return (
         <View className="flex-1 items-center justify-center" style={{backgroundColor: '#e5e7eb'}}>

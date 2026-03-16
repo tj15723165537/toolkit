@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import {
   View,
   Text,
@@ -8,17 +8,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSecureStore } from '@/hooks/useSecureStore';
-import { generateKey } from '@/utils/crypto';
-import { useAuth } from './_layout';
-import { Lock, Eye, EyeOff } from 'lucide-react-native';
-import { assessPasswordStrength } from '@/utils/crypto';
+import {useRouter} from 'expo-router';
+import {useSecureStore} from '@/hooks/useSecureStore';
+import {generateKey, assessPasswordStrength} from '@/utils/crypto';
+import {useAuth} from './_layout';
+import {Lock, Eye, EyeOff} from 'lucide-react-native';
 
 export default function SetupScreen() {
   const router = useRouter();
-  const { setMasterPassword, hasMasterPassword, setSessionTimeout } = useSecureStore();
-  const { setMasterKey } = useAuth();
+  const {setMasterPassword, hasMasterPassword, setSessionTimeout} = useSecureStore();
+  const {setMasterKey} = useAuth();
 
   const [masterPassword, setMasterPasswordState] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -69,119 +68,119 @@ export default function SetupScreen() {
   const strength = assessPasswordStrength(masterPassword);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1"
-    >
+      <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+      >
         <View className="flex-1 px-6 pt-10">
-        {/* Header */}
-        <View className="items-center mb-12">
-          <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-4">
-            <Lock size={40} className="text-primary" />
-          </View>
-          <Text className="text-3xl font-bold text-foreground mb-2">设置主密码</Text>
-          <Text className="text-muted-foreground text-center">
-            主密码用于加密所有密码记录。{'\n'}
-            请记住此密码，忘记后将无法恢复。
-          </Text>
-        </View>
-
-        {/* Form */}
-        <View className="space-y-4">
-          {/* Master Password */}
-          <View>
-            <Text className="text-sm font-medium text-foreground mb-2">主密码</Text>
-            <View className="relative">
-              <TextInput
-                value={masterPassword}
-                onChangeText={setMasterPasswordState}
-                placeholder="输入主密码"
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                className="bg-card border border-border rounded-lg px-4 py-3 pr-12 text-foreground"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-              >
-                {showPassword ? (
-                  <EyeOff size={20} className="text-muted-foreground" />
-                ) : (
-                  <Eye size={20} className="text-muted-foreground" />
-                )}
-              </TouchableOpacity>
+          {/* Header */}
+          <View className="items-center mb-12">
+            <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-4">
+              <Lock size={40} className="text-primary"/>
             </View>
-
-            {/* Password strength indicator */}
-            {masterPassword.length > 0 && (
-              <View className="mt-2">
-                <View className="h-1.5 bg-muted rounded-full overflow-hidden flex-row">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <View
-                      key={i}
-                      className="flex-1 h-full"
-                      style={{
-                        backgroundColor: i <= strength.score ? strength.color : 'transparent',
-                      }}
-                    />
-                  ))}
-                </View>
-                <Text className="text-xs text-muted-foreground mt-1">密码强度: {strength.label}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Confirm Password */}
-          <View>
-            <Text className="text-sm font-medium text-foreground mb-2">确认密码</Text>
-            <View className="relative">
-              <TextInput
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                placeholder="再次输入主密码"
-                secureTextEntry={!showConfirm}
-                autoCapitalize="none"
-                autoCorrect={false}
-                className="bg-card border border-border rounded-lg px-4 py-3 pr-12 text-foreground"
-              />
-              <TouchableOpacity
-                onPress={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-              >
-                {showConfirm ? (
-                  <EyeOff size={20} className="text-muted-foreground" />
-                ) : (
-                  <Eye size={20} className="text-muted-foreground" />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Submit Button */}
-        <View className="mt-8">
-          <TouchableOpacity
-            onPress={handleSetup}
-            disabled={isLoading || !masterPassword || !confirmPassword}
-            className={`rounded-lg py-3 px-6 items-center ${
-              isLoading || !masterPassword || !confirmPassword
-                ? 'bg-muted'
-                : 'bg-primary'
-            }`}
-          >
-            <Text
-              className={`font-semibold ${
-                isLoading || !masterPassword || !confirmPassword
-                  ? 'text-muted-foreground'
-                  : 'text-primary-foreground'
-              }`}
-            >
-              {isLoading ? '设置中...' : '完成设置'}
+            <Text className="text-3xl font-bold text-foreground mb-2">设置主密码</Text>
+            <Text className="text-muted-foreground text-center">
+              主密码用于加密所有密码记录。{'\n'}
+              请记住此密码，忘记后将无法恢复。
             </Text>
-          </TouchableOpacity>
+          </View>
+
+          {/* Form */}
+          <View className="space-y-4">
+            {/* Master Password */}
+            <View>
+              <Text className="text-sm font-medium text-foreground mb-2">主密码</Text>
+              <View className="relative">
+                <TextInput
+                    value={masterPassword}
+                    onChangeText={setMasterPasswordState}
+                    placeholder="输入主密码"
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    className="bg-card border border-border rounded-lg px-4 py-3 pr-12 text-foreground"
+                />
+                <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword ? (
+                      <EyeOff size={20} className="text-muted-foreground"/>
+                  ) : (
+                      <Eye size={20} className="text-muted-foreground"/>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {/* Password strength indicator */}
+              {masterPassword.length > 0 && (
+                  <View className="mt-2">
+                    <View className="h-1.5 bg-muted rounded-full overflow-hidden flex-row">
+                      {[0, 1, 2, 3, 4].map((i) => (
+                          <View
+                              key={i}
+                              className="flex-1 h-full"
+                              style={{
+                                backgroundColor: i <= strength.score ? strength.color : 'transparent',
+                              }}
+                          />
+                      ))}
+                    </View>
+                    <Text className="text-xs text-muted-foreground mt-1">密码强度: {strength.label}</Text>
+                  </View>
+              )}
+            </View>
+
+            {/* Confirm Password */}
+            <View>
+              <Text className="text-sm font-medium text-foreground mb-2">确认密码</Text>
+              <View className="relative">
+                <TextInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="再次输入主密码"
+                    secureTextEntry={!showConfirm}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    className="bg-card border border-border rounded-lg px-4 py-3 pr-12 text-foreground"
+                />
+                <TouchableOpacity
+                    onPress={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showConfirm ? (
+                      <EyeOff size={20} className="text-muted-foreground"/>
+                  ) : (
+                      <Eye size={20} className="text-muted-foreground"/>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/* Submit Button */}
+          <View className="mt-8">
+            <TouchableOpacity
+                onPress={handleSetup}
+                disabled={isLoading || !masterPassword || !confirmPassword}
+                className={`rounded-lg py-3 px-6 items-center ${
+                    isLoading || !masterPassword || !confirmPassword
+                        ? 'bg-muted'
+                        : 'bg-primary'
+                }`}
+            >
+              <Text
+                  className={`font-semibold ${
+                      isLoading || !masterPassword || !confirmPassword
+                          ? 'text-muted-foreground'
+                          : 'text-primary-foreground'
+                  }`}
+              >
+                {isLoading ? '设置中...' : '完成设置'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
   );
 }

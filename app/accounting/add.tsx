@@ -340,7 +340,7 @@ export default function AddTransactionScreen() {
               value={date}
               mode="date"
               display="default"
-              onChange={(event, selectedDate) => {
+              onChange={(_event, selectedDate) => {
                 setShowDatePicker(false);
                 if (selectedDate) {
                   setDate(selectedDate);

@@ -7,12 +7,6 @@ import {useDatabase} from '@/database/hooks';
 import {formatMonth, formatCurrency} from '@/utils/format';
 import {Icon} from '@/components/ui/Icon';
 
-interface MonthlySummary {
-  income: number;
-  expense: number;
-  balance: number;
-}
-
 interface CategorySummary {
   category: string;
   type: 'income' | 'expense';
@@ -28,7 +22,6 @@ interface RecentMonth {
 export default function ReportScreen() {
   const router = useRouter();
   const [currentMonth] = useState(new Date());
-  const [monthlySummary, setMonthlySummary] = useState<MonthlySummary>({income: 0, expense: 0, balance: 0});
   const [categorySummary, setCategorySummary] = useState<CategorySummary[]>([]);
   const [recentMonths, setRecentMonths] = useState<RecentMonth[]>([]);
 
@@ -40,13 +33,12 @@ export default function ReportScreen() {
 
   const loadData = useCallback(async () => {
     const monthKey = format(currentMonth, 'yyyy-MM');
-    const [summary, categoryData, recent] = await Promise.all([
+    const [_summary, categoryData, recent] = await Promise.all([
       getMonthlySummary(monthKey),
       getCategorySummary(monthKey),
       getRecentMonthsSummary(6),
     ]);
 
-    setMonthlySummary(summary);
     setCategorySummary(categoryData);
     setRecentMonths(recent.reverse());
   }, [currentMonth, getMonthlySummary, getCategorySummary, getRecentMonthsSummary]);

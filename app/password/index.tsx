@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {useRouter, useFocusEffect} from 'expo-router';
 import {useDatabase} from '@/database/hooks';
-import {useAuth} from './_layout';
 import {Password} from '@/types';
 import {
   Plus,
@@ -21,12 +20,10 @@ import {
   Shield,
   Globe,
 } from 'lucide-react-native';
-import * as Clipboard from 'expo-clipboard';
 
 export default function PasswordListScreen() {
   const router = useRouter();
   const {getPasswords, deletePassword} = useDatabase();
-  const {decryptPassword} = useAuth();
 
   const [passwords, setPasswords] = useState<Password[]>([]);
   const [filteredPasswords, setFilteredPasswords] = useState<Password[]>([]);
@@ -87,11 +84,6 @@ export default function PasswordListScreen() {
         },
       },
     ]);
-  };
-
-  const handleCopy = async (text: string, label: string) => {
-    await Clipboard.setStringAsync(text);
-    Alert.alert('已复制', `${label} 已复制到剪贴板`);
   };
 
   const renderPasswordItem = ({item}: { item: Password }) => {

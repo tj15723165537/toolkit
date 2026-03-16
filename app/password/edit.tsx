@@ -13,7 +13,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useDatabase } from '@/database/hooks';
 import { useAuth } from './_layout';
-import { Password, DecryptedPassword } from '@/types';
+import { DecryptedPassword } from '@/types';
 import { encrypt, generatePassword, assessPasswordStrength } from '@/utils/crypto';
 import { ArrowLeft, Eye, EyeOff, RefreshCw } from 'lucide-react-native';
 
