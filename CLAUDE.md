@@ -109,3 +109,7 @@ npm run reset-project
 
 - 日期本地化使用 date-fns 的 zhCN locale
 - 货币格式化使用 Intl.NumberFormat('zh-CN')
+
+### 页面
+
+- 页面能拆分的尽量拆分，复用太多不利于维护

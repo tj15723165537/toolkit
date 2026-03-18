@@ -1,39 +1,22 @@
-import {useState, useEffect, useCallback} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  FlatList,
-  Modal,
-  ActivityIndicator,
-} from 'react-native';
-import {useRouter, useFocusEffect} from 'expo-router';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system/legacy';
-import * as Sharing from 'expo-sharing';
+import {useCallback, useEffect, useState} from 'react';
+import {Alert, FlatList, Modal, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {useFocusEffect, useRouter} from 'expo-router';
 import {useDatabase} from '@/database/hooks';
-import {useSecureStore} from '@/hooks/useSecureStore';
 import {Password} from '@/types';
-import {encrypt, decrypt, generateKey} from '@/utils/crypto';
 import {
-  Plus,
-  Search,
+  Globe,
   MoreVertical,
+  Plus,
+  QrCode,
+  Search,
+  Shield,
   Trash2,
   X,
-  Shield,
-  Globe,
-  Download,
-  Upload,
-  Lock,
 } from 'lucide-react-native';
 
 export default function PasswordListScreen() {
   const router = useRouter();
-  const {getPasswords, deletePassword, addPassword} = useDatabase();
-  const {verifyMasterPassword} = useSecureStore();
+  const {getPasswords, deletePassword} = useDatabase();
 
   const [passwords, setPasswords] = useState<Password[]>([]);
   const [filteredPasswords, setFilteredPasswords] = useState<Password[]>([]);
@@ -41,10 +24,6 @@ export default function PasswordListScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPassword, setSelectedPassword] = useState<Password | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [passwordModalMode, setPasswordModalMode] = useState<'export' | 'import'>('export');
-  const [selectedImportFile, setSelectedImportFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
 
   const loadPasswords = async () => {
     setIsLoading(true);
@@ -99,141 +78,6 @@ export default function PasswordListScreen() {
         },
       },
     ]);
-  };
-
-  const handleExport = async () => {
-    if (passwords.length === 0) {
-      Alert.alert('导出失败', '没有密码记录可导出');
-      return;
-    }
-
-    setPasswordModalMode('export');
-    setShowPasswordModal(true);
-    setPasswordInput('');
-  };
-
-  const performExport = async (masterPassword: string) => {
-    try {
-      const isValid = await verifyMasterPassword(masterPassword);
-      if (!isValid) {
-        Alert.alert('密码错误', '主密码不正确');
-        return;
-      }
-
-      const key = generateKey(masterPassword);
-      const dataToExport = passwords.map(p => ({
-        platform: p.platform,
-        username: p.username,
-        password: p.password,
-        notes: p.notes,
-      }));
-
-      const jsonString = JSON.stringify(dataToExport);
-      const encrypted = encrypt(jsonString, key);
-
-      const fileName = `password_backup_${Date.now()}.enc`;
-      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-
-      await FileSystem.writeAsStringAsync(fileUri, encrypted);
-
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/octet-stream',
-          dialogTitle: '分享密码密码备份',
-        });
-      } else {
-        Alert.alert('分享不可用', '当前设备不支持文件分享');
-      }
-
-      await FileSystem.deleteAsync(fileUri, {idempotent: true});
-      setShowPasswordModal(false);
-      setPasswordInput('');
-
-    } catch (error) {
-      console.error('Export error:', error);
-      Alert.alert('导出失败', '导出密码备份时出错');
-    }
-  };
-
-  const handleImport = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
-      });
-
-      if (result.canceled || !result.assets || result.assets.length === 0) {
-        return;
-      }
-
-      setSelectedImportFile(result.assets[0]);
-      setPasswordModalMode('import');
-      setShowPasswordModal(true);
-      setPasswordInput('');
-    } catch (error) {
-      console.error('Import file selection error:', error);
-      Alert.alert('选择文件失败', '无法选择备份文件');
-    }
-  };
-
-  const performImport = async (masterPassword: string) => {
-    if (!selectedImportFile) {
-      Alert.alert('导入失败', '未选择文件');
-      return;
-    }
-
-    try {
-      const key = generateKey(masterPassword);
-      const fileContent = await FileSystem.readAsStringAsync(selectedImportFile.uri);
-
-      const decrypted = decrypt(fileContent, key);
-      const data = JSON.parse(decrypted) as Array<{
-        platform: string;
-        username: string;
-        password: string;
-        notes?: string;
-      }>;
-
-      let successCount = 0;
-      let failCount = 0;
-
-      for (const item of data) {
-        try {
-          await addPassword(item.platform, item.username, item.password, item.notes);
-          successCount++;
-        } catch (error) {
-          console.error('Failed to import password:', error);
-          failCount++;
-        }
-      }
-
-      setShowPasswordModal(false);
-      setPasswordInput('');
-      setSelectedImportFile(null);
-      loadPasswords();
-
-      if (failCount === 0) {
-        Alert.alert('导入成功', `成功导入 ${successCount} 条密码记录`);
-      } else {
-        Alert.alert('导入完成', `成功导入 ${successCount} 条，失败 ${failCount} 条`);
-      }
-
-    } catch (error) {
-      console.error('Import error:', error);
-      Alert.alert('导入失败', '解密失败，请检查密码是否正确');
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    if (passwordInput.trim() === '') {
-      Alert.alert('请输入密码', '请输入主密码');
-      return;
-    }
-
-    if (passwordModalMode === 'export') {
-      performExport(passwordInput);
-    } else {
-      performImport(passwordInput);
-    }
   };
 
   const renderPasswordItem = ({item}: { item: Password }) => {
@@ -310,8 +154,8 @@ export default function PasswordListScreen() {
             <Text className="text-2xl font-bold text-[#1a1a2e]">密码管理</Text>
             <View className="flex-row gap-3">
               <TouchableOpacity
-                  onPress={handleExport}
-                  className="px-3 py-2 rounded-xl flex-row items-center"
+                  onPress={() => router.push('/password/export')}
+                  className="px-3 py-2.5 rounded-xl flex-row items-center"
                   style={{
                     backgroundColor: '#e8e8ec',
                     shadowColor: '#000',
@@ -321,12 +165,12 @@ export default function PasswordListScreen() {
                     elevation: 2,
                   }}
               >
-                <Download size={18} className="text-[#6366f1] mr-1.5"/>
-                <Text className="text-[#6366f1] text-sm font-medium">导出</Text>
+                <QrCode size={18} className="text-[#6366f1]" strokeWidth={2}/>
+                <Text className="text-[#6366f1] text-sm font-medium ml-1.5">导出</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                  onPress={handleImport}
-                  className="px-3 py-2 rounded-xl flex-row items-center"
+                  onPress={() => router.push('/password/import')}
+                  className="px-3 py-2.5 rounded-xl flex-row items-center"
                   style={{
                     backgroundColor: '#e8e8ec',
                     shadowColor: '#000',
@@ -336,8 +180,8 @@ export default function PasswordListScreen() {
                     elevation: 2,
                   }}
               >
-                <Upload size={18} className="text-[#6366f1] mr-1.5"/>
-                <Text className="text-[#6366f1] text-sm font-medium">导入</Text>
+                <QrCode size={18} className="text-[#6366f1]" strokeWidth={2}/>
+                <Text className="text-[#6366f1] text-sm font-medium ml-1.5">导入</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -537,119 +381,6 @@ export default function PasswordListScreen() {
                     </TouchableOpacity>
                   </View>
               )}
-            </View>
-          </View>
-        </Modal>
-
-        {/* Password Modal for Export/Import */}
-        <Modal
-            visible={showPasswordModal}
-            transparent
-            animationType="fade"
-            onRequestClose={() => {
-              setShowPasswordModal(false);
-              setPasswordInput('');
-              setSelectedImportFile(null);
-            }}
-        >
-          <View className="flex-1 bg-black/40 items-center justify-center px-8">
-            <View
-                className="bg-[#f0f0f3] w-full rounded-3xl overflow-hidden p-6"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: {width: 0, height: 8},
-                  shadowOpacity: 0.2,
-                  shadowRadius: 20,
-                  elevation: 10,
-                }}
-            >
-              {/* Icon */}
-              <View className="items-center mb-5">
-                <View
-                    className="w-16 h-16 rounded-2xl items-center justify-center"
-                    style={{
-                      backgroundColor: '#eef2ff',
-                      shadowColor: '#000',
-                      shadowOffset: {width: 3, height: 3},
-                      shadowOpacity: 0.15,
-                      shadowRadius: 6,
-                      elevation: 2,
-                    }}
-                >
-                  <Lock size={32} className="text-[#6366f1]"/>
-                </View>
-              </View>
-
-              {/* Title */}
-              <Text className="text-xl font-bold text-[#1a1a2e] text-center mb-2">
-                {passwordModalMode === 'export' ? '验证密码' : '输入密钥'}
-              </Text>
-              <Text className="text-[#6b7280] text-sm text-center mb-6">
-                {passwordModalMode === 'export'
-                    ? '请输入主密码以验证身份并导出备份'
-                    : '请输入旧设备的主密码以解密备份'}
-              </Text>
-
-              {/* Password input field */}
-              <View
-                  className="px-4 rounded-2xl mb-4"
-                  style={{
-                    backgroundColor: '#e8e8ec',
-                    shadowColor: '#000',
-                    shadowOffset: {width: 3, height: 3},
-                    shadowOpacity: 0.1,
-                    shadowRadius: 6,
-                    elevation: 2,
-                  }}
-              >
-                <TextInput
-                    value={passwordInput}
-                    onChangeText={setPasswordInput}
-                    placeholder="主密码"
-                    placeholderTextColor="#9ca3af"
-                    secureTextEntry
-                    className="text-[#1a1a2e] text-base"
-                    style={{fontSize: 16, height: 50}}
-                    onSubmitEditing={handlePasswordSubmit}
-                />
-              </View>
-
-              {/* Action button */}
-              <TouchableOpacity
-                  onPress={handlePasswordSubmit}
-                  className="w-full py-4 rounded-2xl mb-3"
-                  style={{
-                    backgroundColor: '#6366f1',
-                    shadowColor: '#000',
-                    shadowOffset: {width: 0, height: 4},
-                    shadowOpacity: 0.25,
-                    shadowRadius: 8,
-                    elevation: 3,
-                  }}
-              >
-                <Text className="text-white font-semibold text-base text-center">
-                  {passwordModalMode === 'export' ? '导出' : '导入'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Cancel button */}
-              <TouchableOpacity
-                  onPress={() => {
-                    setShowPasswordModal(false);
-                    setPasswordInput('');
-                    setSelectedImportFile(null);
-                  }}
-                  className="w-full py-4 bg-[#e8e8ec] rounded-2xl items-center"
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {width: 2, height: 2},
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
-                    elevation: 2,
-                  }}
-              >
-                <Text className="text-[#1a1a2e] text-base font-medium">取消</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </Modal>
