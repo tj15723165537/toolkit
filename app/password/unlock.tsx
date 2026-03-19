@@ -22,7 +22,6 @@ export default function UnlockScreen() {
   const {
     verifyMasterPassword,
     setSessionTimeout,
-    removeMasterPassword,
     hasBiometricMasterKey,
     setBiometricMasterKey,
     getBiometricMasterKey,
@@ -114,29 +113,6 @@ export default function UnlockScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleResetMasterPassword = () => {
-    Alert.alert(
-      '重置主密码',
-      '重置后需要重新设置主密码，且已有密码数据将无法解密。确定继续吗？',
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '确定重置',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await removeMasterPassword();
-              setMasterKey(null);
-              router.replace('/password/setup');
-            } catch (error) {
-              Alert.alert('重置失败', '无法重置主密码，请重试');
-            }
-          },
-        },
-      ]
-    );
   };
 
   return (
@@ -273,9 +249,6 @@ export default function UnlockScreen() {
             生物解锁首次启用时，需要先用主密码解锁一次
           </Text>
 
-          <TouchableOpacity onPress={handleResetMasterPassword} className="mt-4 py-2">
-            <Text className="text-center text-sm font-medium text-[#ef4444]">重置主密码</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

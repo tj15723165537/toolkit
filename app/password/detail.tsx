@@ -17,7 +17,6 @@ export default function PasswordDetailScreen() {
   const [password, setPassword] = useState<DecryptedPassword | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showUsername, setShowUsername] = useState(false);
 
   useEffect(() => {
     loadPassword();
@@ -70,9 +69,6 @@ export default function PasswordDetailScreen() {
   }
 
   const maskedPassword = '•'.repeat(password.password.length);
-  const maskedUsername = password.username.length > 0
-      ? password.username[0] + '•'.repeat(password.username.length - 1)
-      : '';
 
   return (
 
@@ -130,19 +126,10 @@ export default function PasswordDetailScreen() {
             <View className="flex-row items-center justify-between">
               <View className="flex-1">
                 <Text className="text-xl font-medium text-[#1a1a2e]">
-                  {showUsername ? password.username : maskedUsername}
+                  {password.username}
                 </Text>
               </View>
               <View className="flex-row gap-3 ml-3">
-                <TouchableOpacity
-                    onPress={() => setShowUsername(!showUsername)}
-                >
-                  {showUsername ? (
-                      <EyeOff size={22} className="text-[#6b7280]"/>
-                  ) : (
-                      <Eye size={22} className="text-[#6b7280]"/>
-                  )}
-                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => handleCopy(password.username, '用户名')}
                 >
