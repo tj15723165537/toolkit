@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,6 +13,7 @@ import {useDatabase} from '@/database/hooks';
 import {useAuth} from './_layout';
 import {encrypt, generatePassword, assessPasswordStrength} from '@/utils/crypto';
 import {ArrowLeft, Eye, EyeOff, RefreshCw} from 'lucide-react-native';
+import {useAppAlert} from '@/components/ui/AlertProvider';
 
 interface PasswordOptions {
   length: number;
@@ -25,6 +25,7 @@ interface PasswordOptions {
 
 export default function AddPasswordScreen() {
   const router = useRouter();
+  const {alert} = useAppAlert();
   const {addPassword} = useDatabase();
   const {masterKey} = useAuth();
 
@@ -50,22 +51,22 @@ export default function AddPasswordScreen() {
 
   const handleSave = async () => {
     if (!masterKey) {
-      Alert.alert('错误', '主密钥未设置');
+      alert('错误', '主密钥未设置');
       return;
     }
 
     if (!platform.trim()) {
-      Alert.alert('请输入平台', '请输入平台名称');
+      alert('请输入平台', '请输入平台名称');
       return;
     }
 
     if (!username.trim()) {
-      Alert.alert('请输入用户名', '请输入用户名');
+      alert('请输入用户名', '请输入用户名');
       return;
     }
 
     if (!password) {
-      Alert.alert('请输入密码', '请输入密码');
+      alert('请输入密码', '请输入密码');
       return;
     }
 
@@ -74,12 +75,12 @@ export default function AddPasswordScreen() {
     try {
       const encryptedPassword = encrypt(password, masterKey);
       await addPassword(platform.trim(), username.trim(), encryptedPassword, notes.trim() || undefined);
-      Alert.alert('保存成功', '密码已保存', [
+      alert('保存成功', '密码已保存', [
         {text: '确定', onPress: () => router.back()},
       ]);
     } catch (error) {
       console.log(error)
-      Alert.alert('保存失败', '无法保存密码，请重试');
+      alert('保存失败', '无法保存密码，请重试');
     }
 
     setIsLoading(false);

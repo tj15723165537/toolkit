@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
+import {ActivityIndicator, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {useDatabase} from '@/database/hooks';
 import {useAuth} from './_layout';
@@ -7,9 +7,11 @@ import {DecryptedPassword} from '@/types';
 import {ArrowLeft, Calendar, Copy, Edit3, Eye, EyeOff} from 'lucide-react-native';
 import {formatDateFull} from '@/utils/format';
 import * as Clipboard from 'expo-clipboard';
+import {useAppAlert} from '@/components/ui/AlertProvider';
 
 export default function PasswordDetailScreen() {
   const router = useRouter();
+  const {alert} = useAppAlert();
   const {id} = useLocalSearchParams<{ id: string }>();
   const {getPassword} = useDatabase();
   const {decryptPassword} = useAuth();
@@ -24,7 +26,7 @@ export default function PasswordDetailScreen() {
 
   const loadPassword = async () => {
     if (!id) {
-      Alert.alert('错误', '缺少密码 ID');
+      alert('错误', '缺少密码 ID');
       router.back();
       return;
     }
@@ -35,11 +37,11 @@ export default function PasswordDetailScreen() {
         const decrypted = decryptPassword(data);
         setPassword(decrypted);
       } else {
-        Alert.alert('未找到', '密码记录不存在');
+        alert('未找到', '密码记录不存在');
         router.back();
       }
     } catch (error) {
-      Alert.alert('加载失败', '无法加载密码记录');
+      alert('加载失败', '无法加载密码记录');
       router.back();
     }
 
@@ -48,7 +50,7 @@ export default function PasswordDetailScreen() {
 
   const handleCopy = async (text: string, label: string) => {
     await Clipboard.setStringAsync(text);
-    Alert.alert('已复制', `${label} 已复制到剪贴板`);
+    alert('已复制', `${label} 已复制到剪贴板`);
   };
 
   if (isLoading) {
@@ -175,7 +177,6 @@ export default function PasswordDetailScreen() {
               </View>
             </View>
           </View>
-
 
 
           {/* Notes card - 拟态风格 */}

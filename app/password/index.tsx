@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Alert, FlatList, Modal, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import {FlatList, Modal, Text, TextInput, TouchableOpacity, View,} from 'react-native';
 import {useFocusEffect, useRouter} from 'expo-router';
 import {useDatabase} from '@/database/hooks';
 import {Password} from '@/types';
@@ -13,9 +13,11 @@ import {
   Trash2,
   X,
 } from 'lucide-react-native';
+import {useAppAlert} from '@/components/ui/AlertProvider';
 
 export default function PasswordListScreen() {
   const router = useRouter();
+  const {alert} = useAppAlert();
   const {getPasswords, deletePassword} = useDatabase();
 
   const [passwords, setPasswords] = useState<Password[]>([]);
@@ -33,7 +35,7 @@ export default function PasswordListScreen() {
       setPasswords(data);
       setFilteredPasswords(data);
     } catch (error) {
-      Alert.alert('加载失败', '无法加载密码记录');
+      alert('加载失败', '无法加载密码记录');
     }
     setIsLoading(false);
   };
@@ -61,7 +63,7 @@ export default function PasswordListScreen() {
   const handleDelete = () => {
     if (!selectedPassword) return;
 
-    Alert.alert('确认删除', `确定要删除 ${selectedPassword.platform} 的密码记录吗？`, [
+    alert('确认删除', `确定要删除 ${selectedPassword.platform} 的密码记录吗？`, [
       {text: '取消', style: 'cancel'},
       {
         text: '删除',
@@ -73,7 +75,7 @@ export default function PasswordListScreen() {
             setSelectedPassword(null);
             loadPasswords();
           } catch (error) {
-            Alert.alert('删除失败', '无法删除密码记录');
+            alert('删除失败', '无法删除密码记录');
           }
         },
       },
