@@ -155,7 +155,7 @@ export default function PasswordListScreen() {
             <View className="flex-row gap-3">
               <TouchableOpacity
                   onPress={() => router.push('/password/export')}
-                  className="px-3 py-2.5 rounded-xl flex-row items-center"
+                  className="px-3 py-2.5 rounded-xl"
                   style={{
                     backgroundColor: '#e8e8ec',
                     shadowColor: '#000',
@@ -163,14 +163,22 @@ export default function PasswordListScreen() {
                     shadowOpacity: 0.1,
                     shadowRadius: 4,
                     elevation: 2,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
               >
                 <QrCode size={18} className="text-[#6366f1]" strokeWidth={2}/>
-                <Text className="text-[#6366f1] text-sm font-medium ml-1.5">导出</Text>
+                <Text
+                    className="text-[#6366f1] text-sm font-medium ml-1.5"
+                    style={{lineHeight: 18, includeFontPadding: false, textAlignVertical: 'center'}}
+                >
+                  导出
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                   onPress={() => router.push('/password/import')}
-                  className="px-3 py-2.5 rounded-xl flex-row items-center"
+                  className="px-3 py-2.5 rounded-xl"
                   style={{
                     backgroundColor: '#e8e8ec',
                     shadowColor: '#000',
@@ -178,10 +186,18 @@ export default function PasswordListScreen() {
                     shadowOpacity: 0.1,
                     shadowRadius: 4,
                     elevation: 2,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
               >
                 <QrCode size={18} className="text-[#6366f1]" strokeWidth={2}/>
-                <Text className="text-[#6366f1] text-sm font-medium ml-1.5">导入</Text>
+                <Text
+                    className="text-[#6366f1] text-sm font-medium ml-1.5"
+                    style={{lineHeight: 18, includeFontPadding: false, textAlignVertical: 'center'}}
+                >
+                  导入
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

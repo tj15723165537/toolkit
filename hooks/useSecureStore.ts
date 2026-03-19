@@ -3,6 +3,8 @@ import { hashPassword } from '@/utils/crypto';
 
 const MASTER_PASSWORD_HASH_KEY = 'master_password_hash';
 const SESSION_TIMEOUT_KEY = 'session_timeout';
+const BIOMETRIC_MASTER_KEY = 'biometric_master_key';
+const BIOMETRIC_KEY_READY = 'biometric_key_ready';
 
 export function useSecureStore() {
   /**
@@ -52,9 +54,58 @@ export function useSecureStore() {
     try {
       await SecureStore.deleteItemAsync(MASTER_PASSWORD_HASH_KEY);
       await SecureStore.deleteItemAsync(SESSION_TIMEOUT_KEY);
+      await SecureStore.deleteItemAsync(BIOMETRIC_MASTER_KEY);
+      await SecureStore.deleteItemAsync(BIOMETRIC_KEY_READY);
     } catch (error) {
       console.error('Error removing master password:', error);
       throw new Error('Failed to remove master password');
+    }
+  };
+
+  /**
+   * 保存用于生物解锁的主密钥（受系统认证保护）
+   */
+  const setBiometricMasterKey = async (masterKey: string): Promise<boolean> => {
+    try {
+      await SecureStore.setItemAsync(BIOMETRIC_MASTER_KEY, masterKey, {
+        requireAuthentication: true,
+        authenticationPrompt: '请验证身份以启用生物解锁',
+      });
+      await SecureStore.setItemAsync(BIOMETRIC_KEY_READY, '1');
+      return true;
+    } catch (error) {
+      // 某些设备/模拟器可能不支持 requireAuthentication，不阻断主流程
+      console.warn('Biometric key storage unavailable:', error);
+      return false;
+    }
+  };
+
+  /**
+   * 是否已初始化生物解锁密钥
+   */
+  const hasBiometricMasterKey = async (): Promise<boolean> => {
+    try {
+      const stored = await SecureStore.getItemAsync(BIOMETRIC_KEY_READY);
+      return stored === '1';
+    } catch (error) {
+      return false;
+    }
+  };
+
+  /**
+   * 读取用于生物解锁的主密钥
+   */
+  const getBiometricMasterKey = async (
+    authenticationPrompt = '请验证身份进行解锁'
+  ): Promise<string | null> => {
+    try {
+      return await SecureStore.getItemAsync(BIOMETRIC_MASTER_KEY, {
+        requireAuthentication: true,
+        authenticationPrompt,
+      });
+    } catch (error) {
+      console.warn('Biometric key read failed:', error);
+      return null;
     }
   };
 
@@ -87,6 +138,9 @@ export function useSecureStore() {
     verifyMasterPassword,
     hasMasterPassword,
     removeMasterPassword,
+    hasBiometricMasterKey,
+    setBiometricMasterKey,
+    getBiometricMasterKey,
     setSessionTimeout,
     getSessionTimeout,
   };

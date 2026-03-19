@@ -2,6 +2,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback } from 'react';
 import { Transaction, TransactionType, Category, MonthlySummary, Password } from '@/types';
 import { formatMonthKey, groupByDate } from '@/utils/format';
+import { generatePasswordRecordId } from '@/utils/ids';
 
 export function useDatabase() {
   const db = useSQLiteContext();
@@ -160,12 +161,22 @@ export function useDatabase() {
     platform: string,
     username: string,
     encryptedPassword: string,
-    notes?: string
+    notes?: string,
+    uniqueId?: string
   ) => {
+    const finalUniqueId = uniqueId || generatePasswordRecordId();
     return await db.runAsync(
-      `INSERT INTO passwords (platform, username, password, notes) VALUES (?, ?, ?, ?)`,
-      [platform, username, encryptedPassword, notes || null]
+      `INSERT INTO passwords (unique_id, platform, username, password, notes) VALUES (?, ?, ?, ?, ?)`,
+      [finalUniqueId, platform, username, encryptedPassword, notes || null]
     );
+  }, [db]);
+
+  const hasPasswordByUniqueId = useCallback(async (uniqueId: string) => {
+    const result = await db.getFirstAsync<{ count: number }>(
+      `SELECT COUNT(*) as count FROM passwords WHERE unique_id = ?`,
+      [uniqueId]
+    );
+    return (result?.count || 0) > 0;
   }, [db]);
 
   const getPasswords = useCallback(async () => {
@@ -199,7 +210,7 @@ export function useDatabase() {
 
   const updatePassword = useCallback(async (
     id: number,
-    updates: Partial<Omit<Password, 'id' | 'created_at' | 'updated_at'>>
+    updates: Partial<Omit<Password, 'id' | 'unique_id' | 'created_at' | 'updated_at'>>
   ) => {
     const fields = Object.keys(updates);
     const values = Object.values(updates);
@@ -224,6 +235,7 @@ export function useDatabase() {
     addCategory,
     deleteCategory,
     addPassword,
+    hasPasswordByUniqueId,
     getPasswords,
     getPassword,
     searchPasswords,

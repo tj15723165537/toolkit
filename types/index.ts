@@ -37,6 +37,7 @@ export interface Tool {
 
 export interface Password {
   id: number;
+  unique_id: string;
   platform: string;
   username: string;
   password: string; // 加密后的密码
@@ -47,6 +48,7 @@ export interface Password {
 
 export interface DecryptedPassword {
   id: number;
+  unique_id: string;
   platform: string;
   username: string;
   password: string; // 解密后的密码

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
-import { ArrowLeft, Check } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { useDatabase } from '@/database/hooks';
 import { encrypt } from '@/utils/crypto';
 import { useAuth } from './_layout';
@@ -15,6 +15,7 @@ interface QRData {
 }
 
 interface ExportPasswordItem {
+  id: string;
   platform: string;
   username: string;
   password: string;
@@ -35,7 +36,7 @@ export default function ExportScreen() {
 
   const startExport = async () => {
     if (!masterKey) {
-      Alert.alert('Error', 'Please unlock password manager first.');
+      Alert.alert('错误', '请先解锁密码管理器。');
       router.back();
       return;
     }
@@ -45,7 +46,7 @@ export default function ExportScreen() {
       const data = await getPasswords();
 
       if (data.length === 0) {
-        Alert.alert('Export failed', 'No password records to export.');
+        Alert.alert('导出失败', '没有可导出的密码记录。');
         setIsGenerating(false);
         return;
       }
@@ -53,6 +54,7 @@ export default function ExportScreen() {
       const decryptedData: ExportPasswordItem[] = data.map((item) => {
         const decrypted = decryptPassword(item);
         return {
+          id: decrypted.unique_id,
           platform: decrypted.platform,
           username: decrypted.username,
           password: decrypted.password,
@@ -72,7 +74,7 @@ export default function ExportScreen() {
       setIsGenerating(false);
     } catch (error) {
       console.error('Export error:', error);
-      Alert.alert('Export failed', 'Failed to generate QR code.');
+      Alert.alert('导出失败', '生成二维码失败，请重试。');
       setIsGenerating(false);
     }
   };
@@ -100,7 +102,7 @@ export default function ExportScreen() {
         >
           <ArrowLeft size={20} className="text-[#6366f1]" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-[#1a1a2e]">QR Export</Text>
+        <Text className="text-xl font-bold text-[#1a1a2e]">二维码导出</Text>
       </View>
 
       <ScrollView className="flex-1 px-5 py-6">
@@ -108,11 +110,11 @@ export default function ExportScreen() {
           {isGenerating ? (
             <View className="items-center py-12">
               <ActivityIndicator size="large" color="#6366f1" />
-              <Text className="mt-4 text-[#6b7280]">Generating QR code...</Text>
+              <Text className="mt-4 text-[#6b7280]">正在生成二维码...</Text>
             </View>
           ) : !qrData ? (
             <View className="items-center py-12">
-              <Text className="text-[#6b7280]">No data to export.</Text>
+              <Text className="text-[#6b7280]">没有可导出的数据。</Text>
             </View>
           ) : (
             <View className="items-center">
@@ -130,26 +132,8 @@ export default function ExportScreen() {
               </View>
 
               <Text className="mb-6 text-center text-[#6b7280]">
-                Scan this QR code on your new device.
+                在新设备上扫描此二维码即可导入。
               </Text>
-
-              <TouchableOpacity
-                onPress={() => router.back()}
-                className="rounded-2xl px-12 py-4"
-                style={{
-                  backgroundColor: '#10b981',
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 8,
-                  elevation: 3,
-                }}
-              >
-                <View className="flex-row items-center justify-center gap-2">
-                  <Check size={20} className="text-white" />
-                  <Text className="font-semibold text-white">Done</Text>
-                </View>
-              </TouchableOpacity>
             </View>
           )}
         </View>

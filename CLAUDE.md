@@ -99,6 +99,7 @@ npm run reset-project
 - 使用 NativeWind (Tailwind CSS 类名)
 - 同时也支持 StyleSheet（主要在记账页面）
 - 颜色定义在 `constants/theme.ts` 中，支持深色/浅色模式
+- 整体风格使用拟态风格
 
 ### 图表
 

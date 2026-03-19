@@ -1,5 +1,6 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 import { CATEGORIES } from '@/utils/constants';
+import { generatePasswordRecordId } from '@/utils/ids';
 
 export async function initializeDatabase(db: SQLiteDatabase) {
   // Enable WAL mode for better performance
@@ -46,6 +47,7 @@ export async function initializeDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS passwords (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      unique_id TEXT UNIQUE,
       platform TEXT NOT NULL,
       username TEXT NOT NULL,
       password TEXT NOT NULL,
@@ -61,10 +63,8 @@ export async function initializeDatabase(db: SQLiteDatabase) {
 
 async function seedCategories(db: SQLiteDatabase) {
   // Check if categories already exist
-  const result = await db.getFirstAsync<{ count: number }>(
-    'SELECT COUNT(*) as count FROM categories'
-  );
-  
+  const result = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM categories');
+
   if (result && result.count === 0) {
     for (const category of CATEGORIES) {
       await db.runAsync(
@@ -75,17 +75,60 @@ async function seedCategories(db: SQLiteDatabase) {
   }
 }
 
+async function ensurePasswordUniqueIdColumn(db: SQLiteDatabase) {
+  const column = await db.getFirstAsync<{ name: string }>(
+    `SELECT name FROM pragma_table_info('passwords') WHERE name = 'unique_id'`
+  );
+
+  if (!column) {
+    await db.execAsync(`ALTER TABLE passwords ADD COLUMN unique_id TEXT;`);
+  }
+}
+
+async function backfillPasswordUniqueIds(db: SQLiteDatabase) {
+  const rows = await db.getAllAsync<{ id: number }>(
+    `SELECT id FROM passwords WHERE unique_id IS NULL OR unique_id = ''`
+  );
+
+  for (const row of rows) {
+    let assigned = false;
+    let attempts = 0;
+
+    while (!assigned && attempts < 5) {
+      attempts += 1;
+      const uniqueId = generatePasswordRecordId();
+
+      try {
+        await db.runAsync(`UPDATE passwords SET unique_id = ? WHERE id = ?`, [uniqueId, row.id]);
+        assigned = true;
+      } catch (error) {
+        // Retry if generated id collides, otherwise bubble up on final attempt.
+        if (attempts >= 5) {
+          throw error;
+        }
+      }
+    }
+  }
+}
+
+async function ensurePasswordUniqueIdIndex(db: SQLiteDatabase) {
+  await db.execAsync(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_passwords_unique_id
+    ON passwords(unique_id);
+  `);
+}
+
 export async function migrateDatabase(db: SQLiteDatabase) {
-  // 检查是否有 url 列，如果有则通过重建表的方式删除它
+  // Historical migration: remove legacy `url` column if present.
   const result = await db.getFirstAsync<{ sql: string }>(
     "SELECT sql FROM sqlite_master WHERE type='table' AND name='passwords'"
   );
 
   if (result && result.sql.includes('url')) {
-    // 创建新表（不含 url 列）
     await db.execAsync(`
       CREATE TABLE passwords_new (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        unique_id TEXT UNIQUE,
         platform TEXT NOT NULL,
         username TEXT NOT NULL,
         password TEXT NOT NULL,
@@ -95,16 +138,18 @@ export async function migrateDatabase(db: SQLiteDatabase) {
       );
     `);
 
-    // 复制数据
     await db.execAsync(`
       INSERT INTO passwords_new (id, platform, username, password, notes, created_at, updated_at)
       SELECT id, platform, username, password, notes, created_at, updated_at FROM passwords;
     `);
 
-    // 删除旧表并重命名新表
     await db.execAsync(`
       DROP TABLE passwords;
       ALTER TABLE passwords_new RENAME TO passwords;
     `);
   }
+
+  await ensurePasswordUniqueIdColumn(db);
+  await backfillPasswordUniqueIds(db);
+  await ensurePasswordUniqueIdIndex(db);
 }

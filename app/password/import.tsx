@@ -15,6 +15,7 @@ interface QRData {
 }
 
 interface ImportedPasswordItem {
+  id?: string;
   platform: string;
   username: string;
   password: string;
@@ -23,7 +24,7 @@ interface ImportedPasswordItem {
 
 export default function ImportScreen() {
   const router = useRouter();
-  const { addPassword } = useDatabase();
+  const { addPassword, hasPasswordByUniqueId } = useDatabase();
   const { masterKey } = useAuth();
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -45,33 +46,43 @@ export default function ImportScreen() {
         const passwords = JSON.parse(decryptedPayload) as ImportedPasswordItem[];
 
         if (!masterKey) {
-          throw new Error('Master key not available');
+          throw new Error('主密钥不可用');
         }
 
         let successCount = 0;
+        let duplicateCount = 0;
         for (const item of passwords) {
           try {
+            const importId = item.id?.trim();
+            if (importId) {
+              const exists = await hasPasswordByUniqueId(importId);
+              if (exists) {
+                duplicateCount += 1;
+                continue;
+              }
+            }
+
             const encryptedPassword = encrypt(item.password, masterKey);
-            await addPassword(item.platform, item.username, encryptedPassword, item.notes);
+            await addPassword(item.platform, item.username, encryptedPassword, item.notes, importId);
             successCount += 1;
           } catch (error) {
             console.error('Failed to import one password:', error);
           }
         }
 
-        Alert.alert('Import complete', `Imported ${successCount} password record(s).`, [
-          { text: 'OK', onPress: () => router.back() },
+        Alert.alert('导入完成', `成功导入 ${successCount} 条，重复跳过 ${duplicateCount} 条。`, [
+          { text: '确定', onPress: () => router.back() },
         ]);
       } catch (error) {
         console.error('Import error:', error);
-        Alert.alert('Import failed', 'Failed to decrypt or import data. Please verify the old master password.', [
-          { text: 'OK', onPress: () => router.back() },
+        Alert.alert('导入失败', '解密或导入数据失败，请确认旧设备主密码是否正确。', [
+          { text: '确定', onPress: () => router.back() },
         ]);
       } finally {
         setIsScanning(false);
       }
     },
-    [addPassword, masterKey, router]
+    [addPassword, hasPasswordByUniqueId, masterKey, router]
   );
 
   const handleScan = useCallback(
@@ -86,14 +97,14 @@ export default function ImportScreen() {
         }
 
         if (qrData.version !== '1') {
-          Alert.alert('Invalid QR', 'Unsupported QR version.');
+          Alert.alert('二维码无效', '不支持的二维码版本。');
           return;
         }
 
         if (scannedData.length === 0) {
           setTotalToScan(qrData.total);
         } else if (qrData.total !== totalToScan) {
-          Alert.alert('Invalid QR', 'QR chunks do not match.');
+          Alert.alert('二维码无效', '二维码分片不匹配。');
           return;
         }
 
@@ -107,7 +118,7 @@ export default function ImportScreen() {
         }
       } catch (error) {
         console.error('Scan error:', error);
-        Alert.alert('Scan failed', 'Invalid QR payload.');
+        Alert.alert('扫描失败', '二维码数据无效。');
       }
     },
     [isScanning, masterPassword, processImport, scannedData, totalToScan]
@@ -136,7 +147,7 @@ export default function ImportScreen() {
         >
           <ArrowLeft size={20} className="text-[#6366f1]" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-[#1a1a2e]">QR Import</Text>
+        <Text className="text-xl font-bold text-[#1a1a2e]">二维码导入</Text>
       </View>
 
       <ScrollView className="flex-1 px-5 py-6">
@@ -155,9 +166,9 @@ export default function ImportScreen() {
             >
               <Lock size={48} className="text-[#6366f1]" />
             </View>
-            <Text className="mb-3 text-xl font-semibold text-[#1a1a2e]">Enter old master password</Text>
+            <Text className="mb-3 text-xl font-semibold text-[#1a1a2e]">输入旧设备主密码</Text>
             <Text className="mb-6 px-4 text-center text-[#6b7280]">
-              This password is used to decrypt exported data from your previous device.
+              用于解密旧设备导出的密码数据。
             </Text>
 
             <View
@@ -174,7 +185,7 @@ export default function ImportScreen() {
               <TextInput
                 value={masterPassword}
                 onChangeText={setMasterPassword}
-                placeholder="Old master password"
+                placeholder="请输入旧设备主密码"
                 placeholderTextColor="#9ca3af"
                 secureTextEntry
                 className="text-base text-[#1a1a2e]"
@@ -195,7 +206,7 @@ export default function ImportScreen() {
                 elevation: 3,
               }}
             >
-              <Text className="text-base font-semibold text-white">Confirm</Text>
+              <Text className="text-base font-semibold text-white">确认</Text>
             </TouchableOpacity>
           </View>
         ) : !permission?.granted ? (
@@ -213,8 +224,8 @@ export default function ImportScreen() {
             >
               <QrCodeIcon size={48} className="text-[#6366f1]" />
             </View>
-            <Text className="mb-3 px-8 text-center text-xl font-semibold text-[#1a1a2e]">Camera permission needed</Text>
-            <Text className="mb-6 px-8 text-center text-[#6b7280]">Allow camera access to scan QR code data.</Text>
+            <Text className="mb-3 px-8 text-center text-xl font-semibold text-[#1a1a2e]">需要相机权限</Text>
+            <Text className="mb-6 px-8 text-center text-[#6b7280]">请授权相机以扫描二维码数据。</Text>
             <TouchableOpacity
               onPress={requestPermission}
               className="rounded-2xl px-12 py-4"
@@ -227,7 +238,7 @@ export default function ImportScreen() {
                 elevation: 3,
               }}
             >
-              <Text className="text-base font-semibold text-white">Grant permission</Text>
+              <Text className="text-base font-semibold text-white">授予权限</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -260,7 +271,7 @@ export default function ImportScreen() {
             {totalToScan > 0 && (
               <View className="mb-4 rounded-2xl bg-[#e8e8ec] p-5">
                 <View className="mb-3 flex-row items-center justify-between">
-                  <Text className="text-sm text-[#6b7280]">Scan progress</Text>
+                  <Text className="text-sm text-[#6b7280]">扫描进度</Text>
                   <Text className="text-sm font-bold text-[#6366f1]">
                     {scannedCount} / {totalToScan}
                   </Text>
@@ -297,10 +308,10 @@ export default function ImportScreen() {
             )}
 
             {totalToScan === 0 ? (
-              <Text className="text-center text-[#6b7280]">Point the camera to QR code on your old device.</Text>
+              <Text className="text-center text-[#6b7280]">将摄像头对准旧设备上的二维码。</Text>
             ) : (
               <Text className="text-center text-[#6b7280]">
-                {isScanning ? 'Importing...' : 'Continue scanning remaining QR chunks.'}
+                {isScanning ? '正在导入...' : '请继续扫描剩余二维码分片。'}
               </Text>
             )}
 
