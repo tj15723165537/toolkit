@@ -31,7 +31,6 @@ export default function PasswordListScreen() {
     setIsLoading(true);
     try {
       const data = await getPasswords();
-      console.log(data)
       setPasswords(data);
       setFilteredPasswords(data);
     } catch (error) {
