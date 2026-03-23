@@ -10,7 +10,7 @@ export default function HomeScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Toolkit 📦</Text>
-            <Text style={styles.subtitle}>你的生活工具集1321321</Text>
+            <Text style={styles.subtitle}>你的生活工具集</Text>
           </View>
 
           <View style={styles.grid}>

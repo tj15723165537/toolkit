@@ -4,7 +4,10 @@
       "Bash(npm install:*)",
       "Bash(npm uninstall:*)",
       "Bash(npx expo:*)",
-      "Bash(npx kill-port:*)"
+      "Bash(npx kill-port:*)",
+      "Bash(npx expo-icon:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)"
     ]
   }
 }
